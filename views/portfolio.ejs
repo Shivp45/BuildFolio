@@ -1,0 +1,192 @@
+<%#
+  views/portfolio.ejs
+  Public portfolio page — rendered at /u/:username
+  This is the page users share with recruiters and collaborators.
+  
+  Variables:
+    - portfolio   {Object|null} Portfolio document from MongoDB
+    - username    {string} The username from the URL
+    - notFound    {boolean} True if no portfolio was found
+    
+  The body gets a theme class (theme-minimal, theme-dark, theme-vibrant)
+  which is applied via the pageTheme variable passed to the header partial.
+%>
+
+<% if (notFound || !portfolio) { %>
+  <%- include('partials/header', { title: '404 — Portfolio Not Found | PortfolioBuilder' }) %>
+
+  <!-- ─── 404 State ────────────────────────────────────── -->
+  <section class="not-found-section">
+    <div class="container">
+      <div class="not-found-content">
+        <div class="not-found-icon" aria-hidden="true">🔍</div>
+        <h1 class="not-found-title">Portfolio Not Found</h1>
+        <p class="not-found-text">
+          There's no portfolio at <code>/u/<%= username %></code>.
+          The user may not exist, or their portfolio is not yet published.
+        </p>
+        <div class="not-found-actions">
+          <a href="/" class="btn btn-primary" id="not-found-home-btn">← Go Home</a>
+          <a href="/register" class="btn btn-outline" id="not-found-register-btn">Create My Portfolio</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+
+<% } else { %>
+
+  <%- include('partials/header', { 
+    title: (portfolio.name || username) + ' — Portfolio | PortfolioBuilder',
+    pageTheme: portfolio.theme || 'minimal'
+  }) %>
+
+  <!-- ─── Portfolio Page ──────────────────────────────── -->
+  <div class="portfolio-page" id="portfolio-page">
+
+    <!-- ── Hero Section ─────────────────────────────── -->
+    <section class="port-hero" id="port-hero" aria-label="Introduction">
+      <div class="port-hero-bg" aria-hidden="true"></div>
+      <div class="container">
+        <div class="port-hero-content">
+          <div class="port-avatar" aria-hidden="true">
+            <%= portfolio.name ? portfolio.name.charAt(0).toUpperCase() : username.charAt(0).toUpperCase() %>
+          </div>
+
+          <h1 class="port-name">
+            <%= portfolio.name || username %>
+          </h1>
+
+          <% if (portfolio.tagline) { %>
+            <p class="port-tagline"><%= portfolio.tagline %></p>
+          <% } %>
+
+          <!-- Social / Contact Links -->
+          <div class="port-social-links" id="port-social-links">
+            <% if (portfolio.email) { %>
+              <a href="mailto:<%= portfolio.email %>" class="port-social-btn" id="port-email-link" aria-label="Send email">
+                <span class="port-social-icon">✉</span>
+                <span>Email Me</span>
+              </a>
+            <% } %>
+            <% if (portfolio.github) { %>
+              <a href="<%= portfolio.github %>" target="_blank" rel="noopener noreferrer" class="port-social-btn" id="port-github-link" aria-label="GitHub profile">
+                <span class="port-social-icon">⊙</span>
+                <span>GitHub</span>
+              </a>
+            <% } %>
+            <% if (portfolio.linkedin) { %>
+              <a href="<%= portfolio.linkedin %>" target="_blank" rel="noopener noreferrer" class="port-social-btn" id="port-linkedin-link" aria-label="LinkedIn profile">
+                <span class="port-social-icon">in</span>
+                <span>LinkedIn</span>
+              </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── About Section ─────────────────────────────── -->
+    <% if (portfolio.about) { %>
+      <section class="port-section" id="port-about" aria-label="About me">
+        <div class="container">
+          <h2 class="port-section-title">
+            <span class="port-section-icon">👤</span> About Me
+          </h2>
+          <div class="port-about-text">
+            <%= portfolio.about %>
+          </div>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- ── Skills Section ────────────────────────────── -->
+    <% if (portfolio.skills && portfolio.skills.length > 0) { %>
+      <section class="port-section port-section-alt" id="port-skills" aria-label="Skills">
+        <div class="container">
+          <h2 class="port-section-title">
+            <span class="port-section-icon">⚡</span> Skills
+          </h2>
+          <div class="port-skills-grid" role="list" aria-label="List of skills">
+            <% portfolio.skills.forEach(skill => { %>
+              <span class="port-skill-chip" role="listitem"><%= skill %></span>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- ── Projects Section ──────────────────────────── -->
+    <% if (portfolio.projects && portfolio.projects.length > 0) { %>
+      <section class="port-section" id="port-projects" aria-label="Projects">
+        <div class="container">
+          <h2 class="port-section-title">
+            <span class="port-section-icon">📁</span> Projects
+          </h2>
+          <div class="port-projects-grid">
+            <% portfolio.projects.forEach((project, i) => { %>
+              <article class="port-project-card" id="project-<%= i %>" aria-label="<%= project.title %>">
+                <div class="port-project-header">
+                  <h3 class="port-project-title"><%= project.title %></h3>
+                  <% if (project.link) { %>
+                    <a
+                      href="<%= project.link %>"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="port-project-link"
+                      id="project-link-<%= i %>"
+                      aria-label="View <%= project.title %>"
+                    >
+                      ↗
+                    </a>
+                  <% } %>
+                </div>
+
+                <% if (project.description) { %>
+                  <p class="port-project-desc"><%= project.description %></p>
+                <% } %>
+
+                <% if (project.techStack && project.techStack.length > 0) { %>
+                  <div class="port-project-tech" aria-label="Technologies used">
+                    <% project.techStack.forEach(tech => { %>
+                      <span class="port-tech-badge"><%= tech %></span>
+                    <% }) %>
+                  </div>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+    <% } %>
+
+    <!-- ── Footer CTA / Contact ──────────────────────── -->
+    <section class="port-contact-section" id="port-contact" aria-label="Contact">
+      <div class="container">
+        <div class="port-contact-card">
+          <h2 class="port-contact-title">Let's Connect!</h2>
+          <p class="port-contact-sub">
+            Interested in working together? Reach out through any of the links above.
+          </p>
+          <% if (portfolio.email) { %>
+            <a href="mailto:<%= portfolio.email %>" class="btn btn-primary btn-lg" id="port-contact-email-btn">
+              ✉ Send Email
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Portfolio Footer Badge ────────────────────── -->
+    <div class="port-made-with" aria-label="Created with PortfolioBuilder">
+      <a href="/" class="port-made-with-link" id="port-made-with-link">
+        Made with <strong>PortfolioBuilder</strong> ⬡
+      </a>
+    </div>
+
+  </div><!-- end .portfolio-page -->
+
+  <%- include('partials/footer') %>
+
+<% } %>

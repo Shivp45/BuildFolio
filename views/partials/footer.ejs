@@ -1,0 +1,59 @@
+<%#
+  views/partials/footer.ejs
+  Reusable footer partial included at the bottom of every page
+  Closes the <main> tag opened in header.ejs, provides site footer,
+  and includes the mobile menu toggle script
+%>
+
+  </main><!-- End of #main-content -->
+
+  <!-- ─── Site Footer ────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="brand-icon">⬡</span>
+        <span class="brand-text">Portfolio<span class="brand-accent">Builder</span></span>
+      </div>
+      <p class="footer-tagline">Build your developer story. Share it with the world.</p>
+      <p class="footer-copy">
+        &copy; <%= new Date().getFullYear() %> PortfolioBuilder &mdash; 
+        Web Technology Mini Project
+      </p>
+    </div>
+  </footer>
+  <!-- ─── End Footer ─────────────────────────────────────────── -->
+
+  <!-- ─── Global Scripts ─────────────────────────────────────── -->
+  <script>
+    // Mobile Navigation Toggle
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        const isOpen = navLinks.classList.toggle('nav-open');
+        navToggle.setAttribute('aria-expanded', isOpen);
+        navToggle.classList.toggle('active', isOpen);
+      });
+
+      // Close menu when a link is clicked
+      navLinks.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('nav-open');
+          navToggle.setAttribute('aria-expanded', 'false');
+          navToggle.classList.remove('active');
+        });
+      });
+    }
+
+    // Navbar scroll effect: add shadow on scroll
+    const navbar = document.getElementById('main-navbar');
+    if (navbar) {
+      window.addEventListener('scroll', () => {
+        navbar.classList.toggle('navbar-scrolled', window.scrollY > 20);
+      });
+    }
+  </script>
+
+</body>
+</html>

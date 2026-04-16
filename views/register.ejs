@@ -1,0 +1,174 @@
+<%#
+  views/register.ejs
+  User registration form
+  Variables: error {string|null}, formData {object}
+%>
+<%- include('partials/header', { title: 'Register — PortfolioBuilder' }) %>
+
+<section class="auth-section">
+  <div class="auth-container">
+    <!-- Left decorative panel -->
+    <div class="auth-panel" aria-hidden="true">
+      <div class="auth-panel-content">
+        <span class="auth-panel-icon">⬡</span>
+        <h2 class="auth-panel-title">Join PortfolioBuilder</h2>
+        <p class="auth-panel-text">Create your developer portfolio and share it with the world.</p>
+        <ul class="auth-panel-list">
+          <li>✓ Free forever</li>
+          <li>✓ Custom shareable URL</li>
+          <li>✓ 3 beautiful themes</li>
+          <li>✓ Unlimited projects</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="auth-form-wrapper">
+      <div class="auth-form-header">
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">Already have an account? <a href="/login" class="auth-link" id="link-to-login">Sign in</a></p>
+      </div>
+
+      <!-- Error Alert -->
+      <% if (error) { %>
+        <div class="alert alert-error" role="alert" id="register-error">
+          <span class="alert-icon">⚠</span>
+          <span><%= error %></span>
+        </div>
+      <% } %>
+
+      <form action="/register" method="POST" class="auth-form" id="register-form" novalidate>
+        
+        <!-- Username Field -->
+        <div class="form-group">
+          <label for="username" class="form-label">
+            Username
+            <span class="label-hint">Used in your portfolio URL</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="input-prefix">yoursite.com/u/</span>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="form-input input-with-prefix"
+              placeholder="yourname"
+              value="<%= typeof formData !== 'undefined' && formData.username ? formData.username : '' %>"
+              required
+              minlength="3"
+              maxlength="20"
+              pattern="[a-z0-9_]+"
+              autocomplete="username"
+              aria-describedby="username-hint"
+            />
+          </div>
+          <small class="form-hint" id="username-hint">Lowercase letters, numbers, underscores only. Min. 3 chars.</small>
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-input"
+            placeholder="you@example.com"
+            value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : '' %>"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-icon-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="Minimum 6 characters"
+              required
+              minlength="6"
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility" data-target="password">
+              <span class="eye-icon" data-show="👁" data-hide="🙈">👁</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">Confirm Password</label>
+          <div class="input-icon-wrapper">
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              class="form-input"
+              placeholder="Repeat your password"
+              required
+              minlength="6"
+              autocomplete="new-password"
+            />
+            <button type="button" class="toggle-password" aria-label="Toggle confirm password visibility" data-target="confirmPassword">
+              <span class="eye-icon" data-show="👁" data-hide="🙈">👁</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="register-submit-btn">
+          Create My Portfolio →
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Client-side validation and UX enhancements
+
+  // Password visibility toggle
+  document.querySelectorAll('.toggle-password').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      const icon = btn.querySelector('.eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = icon.dataset.hide;
+      } else {
+        input.type = 'password';
+        icon.textContent = icon.dataset.show;
+      }
+    });
+  });
+
+  // Auto-lowercase username input
+  const usernameInput = document.getElementById('username');
+  if (usernameInput) {
+    usernameInput.addEventListener('input', () => {
+      const pos = usernameInput.selectionStart;
+      usernameInput.value = usernameInput.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      usernameInput.setSelectionRange(pos, pos);
+    });
+  }
+
+  // Client-side password match validation
+  const registerForm = document.getElementById('register-form');
+  if (registerForm) {
+    registerForm.addEventListener('submit', (e) => {
+      const pass = document.getElementById('password').value;
+      const confirm = document.getElementById('confirmPassword').value;
+      if (pass !== confirm) {
+        e.preventDefault();
+        alert('Passwords do not match. Please check and try again.');
+      }
+    });
+  }
+</script>
+
+<%- include('partials/footer') %>

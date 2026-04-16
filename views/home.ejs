@@ -1,0 +1,148 @@
+<%#
+  views/home.ejs
+  Landing page — introduces the app and guides users to register or login
+%>
+<%- include('partials/header', { title: 'PortfolioBuilder — Build Your Developer Portfolio' }) %>
+
+<!-- ─── Hero Section ──────────────────────────────────────────── -->
+<section class="hero-section" id="hero">
+  <div class="hero-bg-gradient"></div>
+  <div class="hero-particles" aria-hidden="true">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">✨ Your Portfolio. Your Story.</div>
+
+      <h1 class="hero-title">
+        Build a Portfolio That
+        <span class="hero-title-highlight">Gets You Hired</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        PortfolioBuilder lets developers create a stunning, shareable portfolio in minutes.
+        Fill in your details — we craft the rest. Share your unique
+        <code class="hero-url-demo">yoursite.com/u/<em>yourname</em></code>
+        link with recruiters and collaborators.
+      </p>
+
+      <div class="hero-actions">
+        <a href="/register" class="btn btn-primary btn-lg" id="hero-cta-register">
+          <span>Create My Portfolio</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="/login" class="btn btn-outline btn-lg" id="hero-cta-login">
+          Login
+        </a>
+      </div>
+
+      <!-- Social proof / stats -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">3</span>
+          <span class="stat-label">Beautiful Themes</span>
+        </div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item">
+          <span class="stat-number">∞</span>
+          <span class="stat-label">Projects & Skills</span>
+        </div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item">
+          <span class="stat-number">1</span>
+          <span class="stat-label">Unique URL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero visual: floating code card -->
+    <div class="hero-visual" aria-hidden="true">
+      <div class="code-card">
+        <div class="code-card-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="code-card-title">portfolio.json</span>
+        </div>
+        <div class="code-card-body">
+          <pre><code><span class="c-brace">{</span>
+  <span class="c-key">"name"</span><span class="c-colon">:</span> <span class="c-str">"Alex Johnson"</span>,
+  <span class="c-key">"tagline"</span><span class="c-colon">:</span> <span class="c-str">"Full Stack Developer"</span>,
+  <span class="c-key">"skills"</span><span class="c-colon">:</span> [
+    <span class="c-str">"JavaScript"</span>,
+    <span class="c-str">"Node.js"</span>,
+    <span class="c-str">"MongoDB"</span>
+  ],
+  <span class="c-key">"projects"</span><span class="c-colon">:</span> <span class="c-num">3</span>,
+  <span class="c-key">"available"</span><span class="c-colon">:</span> <span class="c-bool">true</span>
+<span class="c-brace">}</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Features Section ─────────────────────────────────────── -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Everything You Need</h2>
+      <p class="section-subtitle">A complete toolkit to showcase your developer profile professionally.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card" id="feature-auth">
+        <div class="feature-icon">🔐</div>
+        <h3 class="feature-title">Secure Auth</h3>
+        <p class="feature-desc">Register and log in safely. Passwords are hashed with bcrypt — never stored in plain text.</p>
+      </div>
+
+      <div class="feature-card" id="feature-dashboard">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Instant Dashboard</h3>
+        <p class="feature-desc">Fill in your skills, projects, and bio through a clean, intuitive form. Save with one click.</p>
+      </div>
+
+      <div class="feature-card" id="feature-url">
+        <div class="feature-icon">🔗</div>
+        <h3 class="feature-title">Shareable URL</h3>
+        <p class="feature-desc">Get a personal link at <strong>/u/yourname</strong>. Copy it and share with recruiters instantly.</p>
+      </div>
+
+      <div class="feature-card" id="feature-themes">
+        <div class="feature-icon">🎨</div>
+        <h3 class="feature-title">3 Themes</h3>
+        <p class="feature-desc">Choose from Minimal, Dark, or Vibrant themes. Your portfolio, your style.</p>
+      </div>
+
+      <div class="feature-card" id="feature-projects">
+        <div class="feature-icon">📁</div>
+        <h3 class="feature-title">Dynamic Projects</h3>
+        <p class="feature-desc">Add and remove projects dynamically. Showcase your best work with titles, descriptions, and links.</p>
+      </div>
+
+      <div class="feature-card" id="feature-responsive">
+        <div class="feature-icon">📱</div>
+        <h3 class="feature-title">Fully Responsive</h3>
+        <p class="feature-desc">Your portfolio looks great on every screen — desktop, tablet, and mobile.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA Banner ────────────────────────────────────────────── -->
+<section class="cta-section" id="cta">
+  <div class="container">
+    <div class="cta-card">
+      <h2 class="cta-title">Ready to stand out?</h2>
+      <p class="cta-desc">Create your free portfolio in under 5 minutes.</p>
+      <a href="/register" class="btn btn-primary btn-lg" id="cta-register-btn">
+        Start Building Now →
+      </a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

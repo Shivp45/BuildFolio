@@ -1,0 +1,102 @@
+<%#
+  views/login.ejs
+  User login form
+  Variables: error {string|null}
+%>
+<%- include('partials/header', { title: 'Login — PortfolioBuilder' }) %>
+
+<section class="auth-section">
+  <div class="auth-container">
+    <!-- Left decorative panel -->
+    <div class="auth-panel" aria-hidden="true">
+      <div class="auth-panel-content">
+        <span class="auth-panel-icon">👋</span>
+        <h2 class="auth-panel-title">Welcome Back!</h2>
+        <p class="auth-panel-text">Sign in to update your portfolio and keep your profile fresh.</p>
+        <div class="auth-panel-quote">
+          <blockquote>"Your portfolio is your face to the world."</blockquote>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="auth-form-wrapper">
+      <div class="auth-form-header">
+        <h1 class="auth-title">Sign In</h1>
+        <p class="auth-subtitle">Don't have an account? <a href="/register" class="auth-link" id="link-to-register">Register free</a></p>
+      </div>
+
+      <!-- Error Alert -->
+      <% if (error) { %>
+        <div class="alert alert-error" role="alert" id="login-error">
+          <span class="alert-icon">⚠</span>
+          <span><%= error %></span>
+        </div>
+      <% } %>
+
+      <form action="/login" method="POST" class="auth-form" id="login-form">
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-input"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-icon-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="Your password"
+              required
+              autocomplete="current-password"
+            />
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility" data-target="password">
+              <span class="eye-icon" data-show="👁" data-hide="🙈">👁</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="login-submit-btn">
+          Sign In →
+        </button>
+      </form>
+
+      <p class="auth-footer-note">
+        By signing in, you agree to our terms of service.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Password visibility toggle
+  document.querySelectorAll('.toggle-password').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      const icon = btn.querySelector('.eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = icon.dataset.hide;
+      } else {
+        input.type = 'password';
+        icon.textContent = icon.dataset.show;
+      }
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>

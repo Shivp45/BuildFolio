@@ -1,0 +1,81 @@
+<%#
+  views/partials/header.ejs
+  Reusable header partial included at the top of every page
+  Provides HTML boilerplate, CSS link, Google Fonts, and the navigation bar
+  
+  Variables used (passed from parent template or res.locals):
+    - title         {string} Page title for <title> tag
+    - pageTheme     {string} Optional theme class for body (set in portfolio.ejs)
+    - sessionUser   {string|null} From res.locals — logged-in username or null
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PortfolioBuilder — Create and share your professional developer portfolio instantly." />
+  
+  <title><%= typeof title !== 'undefined' ? title : 'PortfolioBuilder' %></title>
+
+  <!-- Google Fonts: Inter for clean, modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="/css/style.css" />
+  
+  <!-- Favicon (inline SVG as data URL) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
+</head>
+<body class="<%= typeof pageTheme !== 'undefined' ? 'theme-' + pageTheme : '' %>">
+
+  <!-- ─── Navigation Bar ─────────────────────────────────────── -->
+  <nav class="navbar" id="main-navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <!-- Brand Logo -->
+      <a href="/" class="nav-brand" aria-label="PortfolioBuilder Home">
+        <span class="brand-icon">⬡</span>
+        <span class="brand-text">Portfolio<span class="brand-accent">Builder</span></span>
+      </a>
+
+      <!-- Navigation Links -->
+      <ul class="nav-links" role="list">
+        <% if (sessionUser) { %>
+          <!-- Logged-in state -->
+          <li>
+            <a href="/dashboard" class="nav-link" id="nav-dashboard">
+              <span class="nav-icon">⊞</span> Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="/u/<%= sessionUser %>" class="nav-link" id="nav-portfolio" target="_blank">
+              <span class="nav-icon">↗</span> My Portfolio
+            </a>
+          </li>
+          <li>
+            <a href="/logout" class="nav-link nav-logout" id="nav-logout">
+              <span class="nav-icon">⏻</span> Logout
+            </a>
+          </li>
+        <% } else { %>
+          <!-- Guest state -->
+          <li>
+            <a href="/login" class="nav-link" id="nav-login">Login</a>
+          </li>
+          <li>
+            <a href="/register" class="nav-link nav-cta" id="nav-register">Get Started</a>
+          </li>
+        <% } %>
+      </ul>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle mobile menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <!-- ─── End Navbar ─────────────────────────────────────────── -->
+
+  <!-- Page content starts here -->
+  <main class="main-content" id="main-content">

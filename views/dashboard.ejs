@@ -1,0 +1,582 @@
+<%#
+  views/dashboard.ejs
+  Protected portfolio editor dashboard
+  Variables:
+    - username    {string} Logged-in user's username
+    - portfolio   {Object} Current portfolio data (may be empty {})
+    - success     {boolean} True if just saved
+    - error       {string|null} Error message
+%>
+<%- include('partials/header', { title: 'Dashboard — PortfolioBuilder' }) %>
+
+<section class="dashboard-section">
+  <div class="dashboard-container">
+
+    <!-- ─── Dashboard Header ──────────────────────────── -->
+    <header class="dashboard-header">
+      <div class="dashboard-greeting">
+        <h1 class="dashboard-title">
+          <span class="greeting-wave">👋</span>
+          Your Portfolio Dashboard
+        </h1>
+        <p class="dashboard-subtitle">
+          Logged in as <strong>@<%= username %></strong>
+        </p>
+      </div>
+
+      <!-- Public URL display (shown after portfolio exists) -->
+      <div class="public-url-card" id="public-url-section">
+        <span class="public-url-label">🔗 Your Portfolio URL</span>
+        <div class="public-url-row">
+          <code class="public-url-text" id="portfolio-url">
+            <%= `${typeof baseUrl !== 'undefined' ? baseUrl : 'http://localhost:3000'}/u/${username}` %>
+          </code>
+          <button class="btn-copy" id="copy-url-btn" aria-label="Copy portfolio URL" title="Copy to clipboard">
+            📋 Copy
+          </button>
+          <a href="/u/<%= username %>" target="_blank" class="btn-preview" id="preview-btn" aria-label="Preview portfolio">
+            ↗ Preview
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ─── Success / Error Alerts ────────────────────── -->
+    <% if (success) { %>
+      <div class="alert alert-success" role="alert" id="save-success-alert">
+        <span class="alert-icon">✅</span>
+        <span>Portfolio saved successfully! Your public page is now live.</span>
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert alert-error" role="alert" id="save-error-alert">
+        <span class="alert-icon">⚠</span>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <!-- ─── Portfolio Edit Form ───────────────────────── -->
+    <form action="/dashboard/save" method="POST" class="dashboard-form" id="portfolio-form">
+
+      <!-- ── Section 1: Personal Info ─────────────────── -->
+      <fieldset class="form-section" id="section-personal">
+        <legend class="section-legend">
+          <span class="section-icon">👤</span>
+          Personal Information
+        </legend>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name" class="form-label">Full Name <span class="required">*</span></label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="form-input"
+              placeholder="e.g. Alex Johnson"
+              value="<%= portfolio.name || '' %>"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">
+              Contact Email
+              <span class="label-hint">Shown on portfolio</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="contact@example.com"
+              value="<%= portfolio.email || '' %>"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tagline" class="form-label">Tagline / Role</label>
+          <input
+            type="text"
+            id="tagline"
+            name="tagline"
+            class="form-input"
+            placeholder="e.g. Full Stack Developer | Open Source Enthusiast"
+            value="<%= portfolio.tagline || '' %>"
+            maxlength="120"
+          />
+          <small class="form-hint">A short description shown below your name. Max 120 characters.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="about" class="form-label">About Me</label>
+          <textarea
+            id="about"
+            name="about"
+            class="form-textarea"
+            placeholder="Write a short bio about yourself, your experience, and what drives you..."
+            rows="5"
+          ><%= portfolio.about || '' %></textarea>
+        </div>
+      </fieldset>
+
+      <!-- ── Section 2: Social / Links ────────────────── -->
+      <fieldset class="form-section" id="section-social">
+        <legend class="section-legend">
+          <span class="section-icon">🌐</span>
+          Social Links
+        </legend>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="github" class="form-label">GitHub URL</label>
+            <input
+              type="url"
+              id="github"
+              name="github"
+              class="form-input"
+              placeholder="https://github.com/yourusername"
+              value="<%= portfolio.github || '' %>"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="linkedin" class="form-label">LinkedIn URL</label>
+            <input
+              type="url"
+              id="linkedin"
+              name="linkedin"
+              class="form-input"
+              placeholder="https://linkedin.com/in/yourusername"
+              value="<%= portfolio.linkedin || '' %>"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── Section 3: Skills ─────────────────────────── -->
+      <fieldset class="form-section" id="section-skills">
+        <legend class="section-legend">
+          <span class="section-icon">⚡</span>
+          Skills
+        </legend>
+
+        <div class="form-group">
+          <label for="skills" class="form-label">Skills</label>
+          <input
+            type="text"
+            id="skills"
+            name="skills"
+            class="form-input"
+            placeholder="JavaScript, Node.js, React, MongoDB, Python..."
+            value="<%= (portfolio.skills && portfolio.skills.length > 0) ? portfolio.skills.join(', ') : '' %>"
+          />
+          <small class="form-hint">Enter skills separated by commas. They'll appear as styled chips on your portfolio.</small>
+        </div>
+
+        <!-- Live skill preview -->
+        <div class="skills-preview" id="skills-preview" aria-live="polite">
+          <% if (portfolio.skills && portfolio.skills.length > 0) { %>
+            <% portfolio.skills.forEach(skill => { %>
+              <span class="skill-chip-preview"><%= skill %></span>
+            <% }) %>
+          <% } %>
+        </div>
+      </fieldset>
+
+      <!-- ── Section 4: Projects ───────────────────────── -->
+      <fieldset class="form-section" id="section-projects">
+        <legend class="section-legend">
+          <span class="section-icon">📁</span>
+          Projects
+          <span class="legend-counter" id="project-count">
+            (<%= (portfolio.projects && portfolio.projects.length) ? portfolio.projects.length : 0 %> added)
+          </span>
+        </legend>
+
+        <!-- Container for dynamic project cards -->
+        <div class="projects-list" id="projects-list">
+          <% if (portfolio.projects && portfolio.projects.length > 0) { %>
+            <% portfolio.projects.forEach((project, i) => { %>
+              <!-- Project card #<%= i %> (server-rendered) -->
+              <div class="project-card" id="project-card-<%= i %>" data-index="<%= i %>">
+                <div class="project-card-header">
+                  <h4 class="project-card-title">Project #<span class="proj-num"><%= i + 1 %></span></h4>
+                  <button
+                    type="button"
+                    class="btn-remove-project"
+                    onclick="removeProject(this)"
+                    aria-label="Remove project <%= i + 1 %>"
+                    title="Remove this project"
+                  >✕</button>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Project Title <span class="required">*</span></label>
+                    <input
+                      type="text"
+                      name="projectTitle[]"
+                      class="form-input"
+                      placeholder="e.g. E-commerce Store"
+                      value="<%= project.title || '' %>"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Project Link</label>
+                    <input
+                      type="url"
+                      name="projectLink[]"
+                      class="form-input"
+                      placeholder="https://github.com/you/project"
+                      value="<%= project.link || '' %>"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Description</label>
+                  <textarea
+                    name="projectDescription[]"
+                    class="form-textarea"
+                    placeholder="Brief description of what this project does..."
+                    rows="3"
+                  ><%= project.description || '' %></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Tech Stack</label>
+                  <input
+                    type="text"
+                    name="projectTechStack[]"
+                    class="form-input"
+                    placeholder="React, Node.js, PostgreSQL..."
+                    value="<%= (project.techStack && project.techStack.length > 0) ? project.techStack.join(', ') : '' %>"
+                  />
+                  <small class="form-hint">Comma-separated technologies used.</small>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <!-- Add New Project Button -->
+        <button type="button" class="btn btn-add-project" id="add-project-btn" onclick="addProject()">
+          <span>+ Add Project</span>
+        </button>
+      </fieldset>
+
+      <!-- ── Section 5: Theme Selector ─────────────────── -->
+      <fieldset class="form-section" id="section-theme">
+        <legend class="section-legend">
+          <span class="section-icon">🎨</span>
+          Portfolio Theme
+        </legend>
+
+        <div class="theme-selector" role="radiogroup" aria-label="Portfolio theme selection">
+
+          <!-- Minimal Theme -->
+          <label class="theme-option" id="theme-minimal-label">
+            <input
+              type="radio"
+              name="theme"
+              value="minimal"
+              id="theme-minimal"
+              <%= (!portfolio.theme || portfolio.theme === 'minimal') ? 'checked' : '' %>
+            />
+            <div class="theme-card theme-card-minimal">
+              <div class="theme-preview">
+                <div class="tp-header"></div>
+                <div class="tp-body">
+                  <div class="tp-line"></div>
+                  <div class="tp-line tp-short"></div>
+                  <div class="tp-chip"></div>
+                </div>
+              </div>
+              <span class="theme-name">✦ Minimal</span>
+              <span class="theme-desc">Clean & professional</span>
+            </div>
+          </label>
+
+          <!-- Dark Theme -->
+          <label class="theme-option" id="theme-dark-label">
+            <input
+              type="radio"
+              name="theme"
+              value="dark"
+              id="theme-dark"
+              <%= (portfolio.theme === 'dark') ? 'checked' : '' %>
+            />
+            <div class="theme-card theme-card-dark">
+              <div class="theme-preview">
+                <div class="tp-header"></div>
+                <div class="tp-body">
+                  <div class="tp-line"></div>
+                  <div class="tp-line tp-short"></div>
+                  <div class="tp-chip"></div>
+                </div>
+              </div>
+              <span class="theme-name">◈ Dark</span>
+              <span class="theme-desc">Sleek & modern</span>
+            </div>
+          </label>
+
+          <!-- Vibrant Theme -->
+          <label class="theme-option" id="theme-vibrant-label">
+            <input
+              type="radio"
+              name="theme"
+              value="vibrant"
+              id="theme-vibrant"
+              <%= (portfolio.theme === 'vibrant') ? 'checked' : '' %>
+            />
+            <div class="theme-card theme-card-vibrant">
+              <div class="theme-preview">
+                <div class="tp-header"></div>
+                <div class="tp-body">
+                  <div class="tp-line"></div>
+                  <div class="tp-line tp-short"></div>
+                  <div class="tp-chip"></div>
+                </div>
+              </div>
+              <span class="theme-name">★ Vibrant</span>
+              <span class="theme-desc">Bold & colorful</span>
+            </div>
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- ── Submit Button ─────────────────────────────── -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-lg btn-save" id="save-portfolio-btn">
+          <span class="btn-save-text">💾 Save Portfolio</span>
+          <span class="btn-save-loading" hidden>Saving...</span>
+        </button>
+        <a href="/u/<%= username %>" target="_blank" class="btn btn-outline btn-lg" id="view-portfolio-btn">
+          ↗ View Live Portfolio
+        </a>
+      </div>
+
+    </form>
+  </div>
+</section>
+
+<!-- ─── Dashboard JavaScript ────────────────────────────── -->
+<script>
+  // ── Track project count for IDs ─────────────────────────
+  let projectCount = document.querySelectorAll('.project-card').length;
+
+  /**
+   * addProject()
+   * Dynamically creates and appends a new project card to the projects list
+   */
+  function addProject() {
+    const container = document.getElementById('projects-list');
+    const index = projectCount;
+    projectCount++;
+
+    // Build the project card HTML
+    const card = document.createElement('div');
+    card.classList.add('project-card', 'project-card-new');
+    card.id = `project-card-${index}`;
+    card.setAttribute('data-index', index);
+
+    card.innerHTML = `
+      <div class="project-card-header">
+        <h4 class="project-card-title">Project #<span class="proj-num">${projectCount}</span></h4>
+        <button
+          type="button"
+          class="btn-remove-project"
+          onclick="removeProject(this)"
+          aria-label="Remove project"
+          title="Remove this project"
+        >✕</button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Project Title <span class="required">*</span></label>
+          <input
+            type="text"
+            name="projectTitle[]"
+            class="form-input"
+            placeholder="e.g. Social Media Dashboard"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Project Link</label>
+          <input
+            type="url"
+            name="projectLink[]"
+            class="form-input"
+            placeholder="https://github.com/you/project"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea
+          name="projectDescription[]"
+          class="form-textarea"
+          placeholder="What does this project do? What problem does it solve?"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tech Stack</label>
+        <input
+          type="text"
+          name="projectTechStack[]"
+          class="form-input"
+          placeholder="Vue.js, Firebase, Tailwind..."
+        />
+        <small class="form-hint">Comma-separated technologies used.</small>
+      </div>
+    `;
+
+    // Animate in
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(16px)';
+    container.appendChild(card);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    });
+
+    updateProjectCounter();
+
+    // Scroll to new card
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Focus first input
+    card.querySelector('input').focus();
+  }
+
+  /**
+   * removeProject(button)
+   * Removes the project card containing the clicked button
+   * @param {HTMLElement} btn - The remove button that was clicked
+   */
+  function removeProject(btn) {
+    const card = btn.closest('.project-card');
+    if (!card) return;
+
+    // Animate out before removal
+    card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(-16px)';
+
+    setTimeout(() => {
+      card.remove();
+      updateProjectCounter();
+      renumberProjects();
+    }, 200);
+  }
+
+  /**
+   * renumberProjects()
+   * Re-numbers project cards after additions/removals
+   */
+  function renumberProjects() {
+    document.querySelectorAll('.project-card').forEach((card, i) => {
+      const numEl = card.querySelector('.proj-num');
+      if (numEl) numEl.textContent = i + 1;
+    });
+  }
+
+  /**
+   * updateProjectCounter()
+   * Updates the "(N added)" badge in the fieldset legend
+   */
+  function updateProjectCounter() {
+    const count = document.querySelectorAll('.project-card').length;
+    const counter = document.getElementById('project-count');
+    if (counter) {
+      counter.textContent = `(${count} added)`;
+    }
+  }
+
+  // ── Copy URL to Clipboard ─────────────────────────────────
+  const copyBtn = document.getElementById('copy-url-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const urlText = document.getElementById('portfolio-url').textContent.trim();
+      try {
+        await navigator.clipboard.writeText(urlText);
+        copyBtn.textContent = '✅ Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = '📋 Copy';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      } catch (err) {
+        // Fallback: select text for manual copy
+        const range = document.createRange();
+        range.selectNodeContents(document.getElementById('portfolio-url'));
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        copyBtn.textContent = '📝 Selected!';
+        setTimeout(() => {
+          copyBtn.textContent = '📋 Copy';
+          sel.removeAllRanges();
+        }, 2000);
+      }
+    });
+  }
+
+  // ── Live Skills Preview ───────────────────────────────────
+  const skillsInput = document.getElementById('skills');
+  const skillsPreview = document.getElementById('skills-preview');
+
+  function updateSkillsPreview() {
+    if (!skillsInput || !skillsPreview) return;
+    const skills = skillsInput.value.split(',').map(s => s.trim()).filter(s => s);
+    skillsPreview.innerHTML = skills.map(s =>
+      `<span class="skill-chip-preview">${escapeHtml(s)}</span>`
+    ).join('');
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
+
+  if (skillsInput) {
+    skillsInput.addEventListener('input', updateSkillsPreview);
+  }
+
+  // ── Save button loading state ─────────────────────────────
+  const portfolioForm = document.getElementById('portfolio-form');
+  const saveBtn = document.getElementById('save-portfolio-btn');
+
+  if (portfolioForm && saveBtn) {
+    portfolioForm.addEventListener('submit', () => {
+      saveBtn.querySelector('.btn-save-text').hidden = true;
+      saveBtn.querySelector('.btn-save-loading').hidden = false;
+      saveBtn.disabled = true;
+    });
+  }
+
+  // ── Auto-dismiss success alert ────────────────────────────
+  const successAlert = document.getElementById('save-success-alert');
+  if (successAlert) {
+    setTimeout(() => {
+      successAlert.style.transition = 'opacity 0.5s ease';
+      successAlert.style.opacity = '0';
+      setTimeout(() => successAlert.remove(), 500);
+    }, 4000);
+  }
+</script>
+
+<%- include('partials/footer') %>
